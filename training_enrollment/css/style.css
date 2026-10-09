@@ -1,0 +1,1112 @@
+/* =====================================================================
+   Training Enrollment System
+   iOS 26 "Liquid Glass" inspired stylesheet (single file)
+
+   CONTENTS
+   1. Design tokens (light + dark)
+   2. Base and typography
+   3. Floating glass navigation
+   4. Layout (main, footer, landing page link grid)
+   5. Cards and forms (form.box, filter bar)
+   6. Inputs, selects, textareas
+   7. Buttons and links
+   8. Tables
+   9. Feedback (.ok, .error) and pagination (.pager)
+   10. Responsive rules
+   11. Fallbacks and accessibility (no backdrop-filter, reduced motion)
+   ===================================================================== */
+
+
+/* ---------- 1. DESIGN TOKENS ---------- */
+:root
+{
+    color-scheme: light dark;
+
+    /* Page background and tints that show through the glass */
+    --bg: #eceff5;
+    --bg-tint-a: rgba(10, 100, 216, 0.16);
+    --bg-tint-b: rgba(120, 90, 220, 0.12);
+    --bg-tint-c: rgba(40, 190, 170, 0.12);
+
+    /* Text */
+    --text: #1c1c1e;
+    --text-2: #48484a;
+    --text-3: #636366;
+
+    /* Accent and states */
+    --accent: #0a64d8;
+    --accent-hi: #2f86ff;
+    --accent-soft: rgba(10, 100, 216, 0.12);
+    --ok: #1b7f3a;
+    --ok-soft: rgba(40, 180, 90, 0.14);
+    --warn: #9a5b00;
+    --warn-soft: rgba(255, 170, 0, 0.16);
+    --danger: #c4161c;
+    --danger-soft: rgba(215, 30, 40, 0.11);
+    --info: #0a64d8;
+    --info-soft: rgba(10, 100, 216, 0.12);
+
+    /* Materials. Glass is for navigation and controls, surfaces are for content */
+    --glass-bg: rgba(255, 255, 255, 0.52);
+    --glass-bg-strong: rgba(255, 255, 255, 0.72);
+    --glass-border: rgba(255, 255, 255, 0.7);
+    --glass-edge: rgba(0, 0, 0, 0.06);
+    --glass-highlight: inset 0 1px 0 rgba(255, 255, 255, 0.85),
+                       inset 0 -1px 0 rgba(255, 255, 255, 0.25);
+    --surface: rgba(255, 255, 255, 0.8);
+    --surface-solid: #ffffff;
+    --field-bg: rgba(255, 255, 255, 0.7);
+    --hairline: rgba(60, 60, 67, 0.14);
+    --row-hover: rgba(10, 100, 216, 0.06);
+    --head-bg: rgba(120, 130, 150, 0.1);
+
+    /* Blur */
+    --blur: 22px;
+    --blur-soft: 12px;
+
+    /* Elevation */
+    --shadow-1: 0 1px 2px rgba(20, 30, 60, 0.06), 0 4px 14px rgba(20, 30, 60, 0.06);
+    --shadow-2: 0 2px 6px rgba(20, 30, 60, 0.06), 0 14px 36px rgba(20, 30, 60, 0.12);
+
+    /* Geometry */
+    --r-card: 24px;
+    --r-control: 16px;
+    --r-pill: 999px;
+
+    /* Spacing */
+    --s-1: 4px;
+    --s-2: 8px;
+    --s-3: 12px;
+    --s-4: 16px;
+    --s-5: 24px;
+    --s-6: 32px;
+
+    /* Type */
+    --font: -apple-system, BlinkMacSystemFont, "SF Pro Text", "SF Pro Display",
+            "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+
+    /* Motion */
+    --ease: cubic-bezier(0.25, 0.8, 0.25, 1);
+    --t-fast: 160ms var(--ease);
+    --t-med: 260ms var(--ease);
+}
+
+@media (prefers-color-scheme: dark)
+{
+    :root
+    {
+        --bg: #0d0f14;
+        --bg-tint-a: rgba(47, 134, 255, 0.2);
+        --bg-tint-b: rgba(140, 100, 255, 0.16);
+        --bg-tint-c: rgba(30, 200, 180, 0.12);
+
+        --text: #f2f2f7;
+        --text-2: #d1d1d6;
+        --text-3: #a1a1a8;
+
+        --accent: #3d8bff;
+        --accent-hi: #6aa8ff;
+        --accent-soft: rgba(61, 139, 255, 0.2);
+        --ok: #4cd37b;
+        --ok-soft: rgba(76, 211, 123, 0.16);
+        --warn: #ffc14d;
+        --warn-soft: rgba(255, 193, 77, 0.16);
+        --danger: #ff6b70;
+        --danger-soft: rgba(255, 90, 95, 0.16);
+        --info: #6aa8ff;
+        --info-soft: rgba(61, 139, 255, 0.2);
+
+        --glass-bg: rgba(40, 44, 56, 0.55);
+        --glass-bg-strong: rgba(36, 40, 52, 0.78);
+        --glass-border: rgba(255, 255, 255, 0.14);
+        --glass-edge: rgba(0, 0, 0, 0.5);
+        --glass-highlight: inset 0 1px 0 rgba(255, 255, 255, 0.18),
+                           inset 0 -1px 0 rgba(255, 255, 255, 0.04);
+        --surface: rgba(30, 34, 44, 0.82);
+        --surface-solid: #1c2029;
+        --field-bg: rgba(255, 255, 255, 0.07);
+        --hairline: rgba(255, 255, 255, 0.1);
+        --row-hover: rgba(61, 139, 255, 0.1);
+        --head-bg: rgba(255, 255, 255, 0.06);
+
+        --shadow-1: 0 1px 2px rgba(0, 0, 0, 0.4), 0 4px 14px rgba(0, 0, 0, 0.3);
+        --shadow-2: 0 2px 6px rgba(0, 0, 0, 0.4), 0 16px 40px rgba(0, 0, 0, 0.5);
+    }
+}
+
+
+/* ---------- 2. BASE AND TYPOGRAPHY ---------- */
+*,
+*::before,
+*::after
+{
+    box-sizing: border-box;
+}
+
+html
+{
+    -webkit-text-size-adjust: 100%;
+}
+
+body
+{
+    margin: 0;
+    min-height: 100vh;
+    font-family: var(--font);
+    font-size: 16px;
+    line-height: 1.5;
+    color: var(--text);
+    background-color: var(--bg);
+    /* Soft colour fields give the glass something to pick up */
+    background-image:
+        radial-gradient(60rem 40rem at 8% -10%, var(--bg-tint-a), transparent 60%),
+        radial-gradient(50rem 36rem at 100% 5%, var(--bg-tint-b), transparent 60%),
+        radial-gradient(55rem 40rem at 50% 110%, var(--bg-tint-c), transparent 60%);
+    background-attachment: fixed;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+
+h1,
+h2,
+h3
+{
+    color: var(--text);
+    line-height: 1.15;
+    letter-spacing: -0.02em;
+}
+
+h1
+{
+    margin: var(--s-5) 0 var(--s-4);
+    font-size: clamp(1.75rem, 1.4rem + 1.6vw, 2.5rem);
+    font-weight: 700;
+}
+
+h3
+{
+    margin: 0 0 var(--s-2);
+    font-size: 1.15rem;
+    font-weight: 650;
+}
+
+p
+{
+    margin: 0 0 var(--s-4);
+    color: var(--text-2);
+}
+
+a
+{
+    color: var(--accent);
+    text-decoration: none;
+    transition: color var(--t-fast), opacity var(--t-fast);
+}
+
+a:hover
+{
+    color: var(--accent-hi);
+}
+
+::selection
+{
+    background: var(--accent-soft);
+}
+
+
+/* ---------- 3. FLOATING GLASS NAVIGATION ---------- */
+nav
+{
+    position: sticky;
+    top: 12px;
+    z-index: 50;
+    isolation: isolate;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: center;
+    gap: var(--s-1);
+    width: fit-content;
+    max-width: calc(100% - 24px);
+    margin: 14px auto 0;
+    padding: 6px;
+    /* The markup has "|" separators as text. Zero font size hides them
+       and the links set their own size below. */
+    font-size: 0;
+    color: var(--text);
+    background: var(--glass-bg);
+    border: 1px solid var(--glass-border);
+    border-radius: var(--r-pill);
+    box-shadow: var(--glass-highlight), var(--shadow-2);
+    -webkit-backdrop-filter: blur(var(--blur)) saturate(180%);
+    backdrop-filter: blur(var(--blur)) saturate(180%);
+}
+
+/* Soft specular sheen along the top edge of the glass */
+nav::before
+{
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    border-radius: inherit;
+    pointer-events: none;
+    background: linear-gradient(180deg, rgba(255, 255, 255, 0.35), rgba(255, 255, 255, 0) 55%);
+    opacity: 0.6;
+}
+
+nav a
+{
+    padding: 9px 16px;
+    font-size: 0.9rem;
+    font-weight: 560;
+    line-height: 1.2;
+    color: var(--text-2);
+    border-radius: var(--r-pill);
+    transition: background var(--t-fast), color var(--t-fast), transform var(--t-fast);
+}
+
+nav a:hover
+{
+    color: var(--text);
+    background: var(--glass-bg-strong);
+    box-shadow: var(--glass-highlight);
+}
+
+nav a:active
+{
+    transform: scale(0.97);
+}
+
+
+/* ---------- 4. LAYOUT ---------- */
+main
+{
+    max-width: 1040px;
+    margin: var(--s-5) auto var(--s-6);
+    padding: 0 var(--s-5);
+}
+
+footer
+{
+    padding: var(--s-5) var(--s-4) var(--s-6);
+    text-align: center;
+    font-size: 0.8rem;
+    color: var(--text-3);
+}
+
+/* Landing page: the list of links becomes a grid of glass tiles */
+main > ul
+{
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: var(--s-3);
+    margin: var(--s-4) 0 0;
+    padding: 0;
+    list-style: none;
+}
+
+main > ul li a
+{
+    display: block;
+    padding: var(--s-4) var(--s-5);
+    font-weight: 600;
+    color: var(--text);
+    background: var(--glass-bg);
+    border: 1px solid var(--glass-border);
+    border-radius: var(--r-card);
+    box-shadow: var(--glass-highlight), var(--shadow-1);
+    -webkit-backdrop-filter: blur(var(--blur-soft)) saturate(160%);
+    backdrop-filter: blur(var(--blur-soft)) saturate(160%);
+    transition: transform var(--t-med), box-shadow var(--t-med), background var(--t-med);
+}
+
+main > ul li a:hover
+{
+    transform: translateY(-2px);
+    background: var(--glass-bg-strong);
+    box-shadow: var(--glass-highlight), var(--shadow-2);
+}
+
+main > ul li a:active
+{
+    transform: translateY(0) scale(0.99);
+}
+
+
+/* ---------- 5. CARDS AND FORMS ---------- */
+form.box
+{
+    max-width: 520px;
+    margin: 0 0 var(--s-5);
+    padding: var(--s-5);
+    background: var(--surface);
+    border: 1px solid var(--glass-border);
+    border-radius: var(--r-card);
+    box-shadow: var(--glass-highlight), var(--shadow-1);
+    -webkit-backdrop-filter: blur(var(--blur-soft));
+    backdrop-filter: blur(var(--blur-soft));
+}
+
+/* Search and filter bar on the enrollments page (a plain GET form) */
+main > form:not(.box)
+{
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--s-2);
+    margin: 0 0 var(--s-3);
+}
+
+main > form:not(.box) button
+{
+    margin: 0;
+}
+
+label
+{
+    display: block;
+    margin: var(--s-4) 0 6px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--text-2);
+}
+
+form.box h3 + label,
+form.box input[type=hidden] + label
+{
+    margin-top: var(--s-3);
+}
+
+
+/* ---------- 6. INPUTS, SELECTS, TEXTAREAS ---------- */
+input[type=text],
+input[type=email],
+input[type=password],
+input[type=number],
+input[type=date],
+input[type=search],
+select,
+textarea
+{
+    width: 100%;
+    min-height: 44px;
+    padding: 10px 14px;
+    font: inherit;
+    font-size: 0.95rem;
+    color: var(--text);
+    background: var(--field-bg);
+    border: 1px solid var(--hairline);
+    border-radius: var(--r-control);
+    box-shadow: inset 0 1px 2px rgba(20, 30, 60, 0.06);
+    outline: none;
+    transition: border-color var(--t-fast), box-shadow var(--t-fast), background var(--t-fast);
+}
+
+textarea
+{
+    resize: vertical;
+    min-height: 96px;
+    line-height: 1.45;
+}
+
+select
+{
+    -webkit-appearance: none;
+    appearance: none;
+    padding-right: 40px;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%238e8e93' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 14px center;
+}
+
+input::placeholder,
+textarea::placeholder
+{
+    color: var(--text-3);
+    opacity: 0.8;
+}
+
+input:hover,
+select:hover,
+textarea:hover
+{
+    border-color: rgba(120, 130, 150, 0.45);
+}
+
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible
+{
+    background: var(--surface-solid);
+    border-color: var(--accent);
+    box-shadow: 0 0 0 4px var(--accent-soft);
+}
+
+input:disabled,
+select:disabled,
+textarea:disabled
+{
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+/* Native validation styling, only after the user has typed something */
+input:user-invalid,
+select:user-invalid,
+textarea:user-invalid
+{
+    border-color: var(--danger);
+    box-shadow: 0 0 0 4px var(--danger-soft);
+}
+
+input[type=checkbox],
+input[type=radio]
+{
+    width: 18px;
+    height: 18px;
+    accent-color: var(--accent);
+    vertical-align: middle;
+}
+
+
+/* ---------- 7. BUTTONS AND LINKS ---------- */
+/* Primary action (default button) */
+button,
+.btn
+{
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--s-2);
+    min-height: 44px;
+    margin-top: var(--s-4);
+    padding: 10px 22px;
+    font: inherit;
+    font-size: 0.95rem;
+    font-weight: 600;
+    line-height: 1.1;
+    color: #fff;
+    text-decoration: none;
+    cursor: pointer;
+    background: linear-gradient(180deg, var(--accent-hi), var(--accent));
+    border: 1px solid rgba(255, 255, 255, 0.25);
+    border-radius: var(--r-pill);
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.4),
+                0 1px 2px rgba(10, 60, 150, 0.25),
+                0 6px 16px rgba(10, 100, 216, 0.28);
+    transition: transform var(--t-fast), box-shadow var(--t-med), filter var(--t-fast);
+}
+
+button:hover,
+.btn:hover
+{
+    color: #fff;
+    filter: brightness(1.06);
+    transform: translateY(-1px);
+}
+
+button:active,
+.btn:active
+{
+    transform: translateY(0) scale(0.98);
+    filter: brightness(0.97);
+}
+
+/* Secondary action: understated glass pill (the "Cancel" link next to Save) */
+a.btn
+{
+    color: var(--text);
+    background: var(--glass-bg);
+    border: 1px solid var(--glass-border);
+    box-shadow: var(--glass-highlight), var(--shadow-1);
+    -webkit-backdrop-filter: blur(var(--blur-soft));
+    backdrop-filter: blur(var(--blur-soft));
+}
+
+a.btn:hover
+{
+    color: var(--text);
+    background: var(--glass-bg-strong);
+}
+
+/* Destructive action: tinted pill so it stays calm but clearly different */
+button.danger
+{
+    color: var(--danger);
+    background: var(--danger-soft);
+    border: 1px solid transparent;
+    box-shadow: none;
+}
+
+button.danger:hover
+{
+    color: #fff;
+    background: var(--danger);
+    filter: none;
+}
+
+button:disabled,
+.btn[disabled],
+.btn[aria-disabled=true]
+{
+    opacity: 0.45;
+    cursor: not-allowed;
+    transform: none;
+    filter: grayscale(0.4);
+    pointer-events: none;
+}
+
+/* Keyboard focus ring for every interactive element */
+a:focus-visible,
+button:focus-visible,
+.btn:focus-visible
+{
+    outline: 3px solid var(--accent-soft);
+    outline-offset: 2px;
+    box-shadow: 0 0 0 2px var(--accent);
+}
+
+.inline
+{
+    display: inline;
+    margin: 0;
+}
+
+
+/* ---------- 8. TABLES ---------- */
+table
+{
+    width: 100%;
+    margin: var(--s-3) 0 var(--s-4);
+    overflow: hidden;
+    border-collapse: separate;
+    border-spacing: 0;
+    background: var(--surface);
+    border: 1px solid var(--glass-border);
+    border-radius: var(--r-card);
+    box-shadow: var(--glass-highlight), var(--shadow-1);
+}
+
+th,
+td
+{
+    padding: 12px 14px;
+    text-align: left;
+    vertical-align: middle;
+    font-size: 0.9rem;
+    border: 0;
+    border-bottom: 1px solid var(--hairline);
+}
+
+th
+{
+    font-size: 0.75rem;
+    font-weight: 650;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: var(--text-3);
+    white-space: nowrap;
+    background: var(--head-bg);
+}
+
+tr:last-child td
+{
+    border-bottom: 0;
+}
+
+td
+{
+    color: var(--text);
+    transition: background var(--t-fast);
+}
+
+tr:hover td
+{
+    background: var(--row-hover);
+}
+
+/* "No records found" rows */
+td[colspan]
+{
+    padding: var(--s-6) var(--s-4);
+    text-align: center;
+    color: var(--text-3);
+}
+
+/* Row actions: compact buttons that fit inside cells */
+td button
+{
+    min-height: 34px;
+    margin: 0 0 0 var(--s-2);
+    padding: 6px 14px;
+    font-size: 0.82rem;
+}
+
+td a
+{
+    display: inline-block;
+    padding: 6px 12px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    background: var(--accent-soft);
+    border-radius: var(--r-pill);
+}
+
+td a:hover
+{
+    background: var(--accent);
+    color: #fff;
+}
+
+
+/* ---------- 9. FEEDBACK AND PAGINATION ---------- */
+.ok,
+.error
+{
+    display: block;
+    margin: var(--s-3) 0 var(--s-4);
+    padding: 14px 18px;
+    font-size: 0.92rem;
+    font-weight: 560;
+    line-height: 1.4;
+    border: 1px solid transparent;
+    border-radius: var(--r-control);
+    box-shadow: var(--glass-highlight);
+    -webkit-backdrop-filter: blur(var(--blur-soft));
+    backdrop-filter: blur(var(--blur-soft));
+}
+
+.ok
+{
+    color: var(--ok);
+    background: var(--ok-soft);
+    border-color: rgba(40, 180, 90, 0.35);
+}
+
+.error
+{
+    color: var(--danger);
+    background: var(--danger-soft);
+    border-color: rgba(215, 30, 40, 0.3);
+}
+
+.pager
+{
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--s-2);
+    margin: var(--s-4) 0;
+    font-size: 0.88rem;
+    color: var(--text-3);
+}
+
+.pager a,
+.pager strong
+{
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 38px;
+    height: 38px;
+    padding: 0 12px;
+    font-weight: 600;
+    border-radius: var(--r-pill);
+}
+
+.pager a
+{
+    color: var(--text);
+    background: var(--glass-bg);
+    border: 1px solid var(--glass-border);
+    box-shadow: var(--glass-highlight);
+    transition: background var(--t-fast), transform var(--t-fast);
+}
+
+.pager a:hover
+{
+    background: var(--glass-bg-strong);
+    transform: translateY(-1px);
+}
+
+/* Current page */
+.pager strong
+{
+    color: #fff;
+    background: linear-gradient(180deg, var(--accent-hi), var(--accent));
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.4);
+}
+
+
+/* ---------- 10. RESPONSIVE ---------- */
+@media (max-width: 720px)
+{
+    main
+    {
+        padding: 0 var(--s-4);
+    }
+
+    form.box
+    {
+        max-width: none;
+        padding: var(--s-4);
+        border-radius: 20px;
+    }
+
+    /* 16px inputs stop iOS from zooming the page on focus */
+    input[type=text],
+    input[type=email],
+    input[type=password],
+    input[type=number],
+    input[type=date],
+    input[type=search],
+    select,
+    textarea
+    {
+        font-size: 16px;
+    }
+
+    /* Inline widths set in the PHP page must not overflow on phones */
+    main > form:not(.box) input,
+    main > form:not(.box) select
+    {
+        width: 100% !important;
+    }
+
+    main > form:not(.box) button
+    {
+        width: 100%;
+    }
+
+    /* Wide tables scroll sideways inside themselves */
+    table
+    {
+        display: block;
+        max-width: 100%;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    td
+    {
+        white-space: nowrap;
+    }
+}
+
+
+/* ---------- 11. FALLBACKS AND ACCESSIBILITY ---------- */  /* (extra sections 12 to 15 follow below) */
+/* Browsers without backdrop-filter get more opaque surfaces so text stays readable */
+@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px)))
+{
+    :root
+    {
+        --glass-bg: rgba(250, 251, 254, 0.94);
+        --glass-bg-strong: rgba(255, 255, 255, 0.98);
+        --surface: rgba(255, 255, 255, 0.96);
+    }
+}
+
+@media (prefers-color-scheme: dark)
+{
+    @supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px)))
+    {
+        :root
+        {
+            --glass-bg: rgba(34, 38, 50, 0.96);
+            --glass-bg-strong: rgba(40, 44, 58, 0.98);
+            --surface: rgba(28, 32, 42, 0.97);
+        }
+    }
+}
+
+/* Dark mode: the sheen on the nav should be quieter */
+@media (prefers-color-scheme: dark)
+{
+    nav::before
+    {
+        opacity: 0.18;
+    }
+}
+
+/* Respect users who ask for less motion */
+@media (prefers-reduced-motion: reduce)
+{
+    *,
+    *::before,
+    *::after
+    {
+        transition-duration: 0.01ms !important;
+        animation-duration: 0.01ms !important;
+        scroll-behavior: auto !important;
+    }
+
+    button:hover,
+    .btn:hover,
+    main > ul li a:hover,
+    .pager a:hover
+    {
+        transform: none;
+    }
+}
+
+
+/* ---------- 12. NAVIGATION: ICONS, ACTIVE STATE, MOBILE TAB BAR ---------- */
+.skip
+{
+    position: absolute;
+    top: -80px;
+    left: 12px;
+    z-index: 100;
+    padding: 10px 18px;
+    font-weight: 600;
+    color: var(--text);
+    background: var(--surface-solid);
+    border-radius: var(--r-pill);
+    box-shadow: var(--shadow-2);
+}
+
+.skip:focus
+{
+    top: 12px;
+}
+
+nav a
+{
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+}
+
+nav svg
+{
+    flex: none;
+    width: 18px;
+    height: 18px;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 1.9;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+}
+
+nav .lbl-s
+{
+    display: none;
+}
+
+nav a[aria-current="page"]
+{
+    color: var(--accent);
+    background: var(--glass-bg-strong);
+    box-shadow: var(--glass-highlight), 0 1px 3px rgba(20, 30, 60, 0.14);
+}
+
+/* After scrolling, the glass gets slightly thicker */
+nav.is-scrolled
+{
+    background: var(--glass-bg-strong);
+    box-shadow: var(--glass-highlight), var(--shadow-2), 0 0 0 1px var(--glass-edge);
+}
+
+@media (max-width: 720px)
+{
+    /* iPhone style floating tab bar at the bottom */
+    nav
+    {
+        position: fixed;
+        top: auto;
+        right: 10px;
+        bottom: calc(10px + env(safe-area-inset-bottom, 0px));
+        left: 10px;
+        width: auto;
+        max-width: none;
+        margin: 0;
+        padding: 6px;
+        flex-wrap: nowrap;
+        justify-content: space-between;
+        border-radius: 30px;
+    }
+
+    nav a
+    {
+        flex: 1 1 0;
+        flex-direction: column;
+        justify-content: center;
+        gap: 3px;
+        min-width: 0;
+        min-height: 50px;
+        padding: 6px 2px;
+        font-size: 0.62rem;
+        font-weight: 600;
+        text-align: center;
+        border-radius: 22px;
+    }
+
+    nav .lbl
+    {
+        display: none;
+    }
+
+    nav .lbl-s
+    {
+        display: inline;
+    }
+
+    body
+    {
+        padding-bottom: calc(92px + env(safe-area-inset-bottom, 0px));
+    }
+
+    main
+    {
+        margin-top: calc(var(--s-4) + env(safe-area-inset-top, 0px));
+    }
+}
+
+
+/* ---------- 13. CONFIRM DIALOG ---------- */
+dialog.confirm
+{
+    width: min(92vw, 400px);
+    padding: var(--s-5);
+    color: var(--text);
+    background: var(--glass-bg-strong);
+    border: 1px solid var(--glass-border);
+    border-radius: 28px;
+    box-shadow: var(--glass-highlight), var(--shadow-2);
+    -webkit-backdrop-filter: blur(var(--blur)) saturate(180%);
+    backdrop-filter: blur(var(--blur)) saturate(180%);
+}
+
+dialog.confirm[open]
+{
+    animation: dialog-in 240ms var(--ease);
+}
+
+dialog.confirm::backdrop
+{
+    background: rgba(10, 15, 30, 0.32);
+    -webkit-backdrop-filter: blur(6px);
+    backdrop-filter: blur(6px);
+    animation: fade-in 200ms var(--ease);
+}
+
+dialog.confirm h2
+{
+    margin: 0 0 var(--s-2);
+    font-size: 1.2rem;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+}
+
+dialog.confirm p
+{
+    margin: 0 0 var(--s-5);
+    color: var(--text-2);
+}
+
+.confirm-actions
+{
+    display: flex;
+    gap: var(--s-2);
+}
+
+.confirm-actions button
+{
+    flex: 1;
+    margin: 0;
+}
+
+/* Secondary button: same quiet glass look as a.btn */
+button.secondary
+{
+    color: var(--text);
+    background: var(--glass-bg);
+    border: 1px solid var(--glass-border);
+    box-shadow: var(--glass-highlight), var(--shadow-1);
+}
+
+button.secondary:hover
+{
+    color: var(--text);
+    background: var(--glass-bg-strong);
+}
+
+/* Solid destructive button used inside the dialog */
+button.danger.solid
+{
+    color: #fff;
+    background: linear-gradient(180deg, #ff5a5f, var(--danger));
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.35), 0 6px 16px rgba(215, 30, 40, 0.28);
+}
+
+@keyframes dialog-in
+{
+    from { opacity: 0; transform: translateY(10px) scale(0.97); }
+    to   { opacity: 1; transform: none; }
+}
+
+@keyframes fade-in
+{
+    from { opacity: 0; }
+    to   { opacity: 1; }
+}
+
+
+/* ---------- 14. LOADING STATE (submit buttons) ---------- */
+button[aria-busy="true"]
+{
+    pointer-events: none;
+    opacity: 0.8;
+}
+
+button[aria-busy="true"]::after
+{
+    content: "";
+    width: 14px;
+    height: 14px;
+    border: 2px solid currentColor;
+    border-right-color: transparent;
+    border-radius: 50%;
+    animation: spin 700ms linear infinite;
+}
+
+@keyframes spin
+{
+    to { transform: rotate(360deg); }
+}
+
+
+/* ---------- 15. PAGE TRANSITIONS ---------- */
+/* Cross-document view transitions (supported browsers only, ignored elsewhere) */
+@view-transition
+{
+    navigation: auto;
+}
+
+::view-transition-old(root),
+::view-transition-new(root)
+{
+    animation-duration: 180ms;
+}
+
+main
+{
+    animation: fade-in 280ms var(--ease);
+}
+
+@media (prefers-reduced-motion: reduce)
+{
+    button[aria-busy="true"]::after
+    {
+        animation: none !important;
+        border-right-color: currentColor;
+        opacity: 0.6;
+    }
+
+    @view-transition
+    {
+        navigation: none;
+    }
+}
